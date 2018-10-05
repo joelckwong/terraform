@@ -14,7 +14,7 @@ provider "aws" {
 }
 
 module "networking" {
-  source = "../modules/networking"
+  source = "../../modules/networking"
   vpc_cidr = "${var.vpc_cidr}"
   web_cidrs = "${var.web_cidrs}"
   app_cidrs = "${var.app_cidrs}"
@@ -23,8 +23,8 @@ module "networking" {
   accessip = "${var.accessip}"
 }
 
-module "compute" {
-  source = "../modules/compute/ec2"
+module "ec2" {
+  source = "../../modules/compute/ec2"
   instance_count = "${var.instance_count}"
   key_name = "${var.key_name}"
   public_key_path = "${var.public_key_path}"
@@ -35,7 +35,7 @@ module "compute" {
 }
 
 module "elb_http" {
-  source = "../modules/compute/elb"
+  source = "../../modules/compute/elb"
   name = "elb-${var.env}"
   subnets         = ["${module.networking.web_subnets}"]
   security_groups = ["${module.networking.web_sg}"]
@@ -57,4 +57,11 @@ module "elb_http" {
       timeout             = 5
     },
   ]
+}
+
+module "elb_attach" {
+  source = "../../modules/compute/elb_attachment"
+  instance_count = "${var.instance_count}"
+  elb = "${module.elb_http.this_elb_id}"
+  instance = "${module.ec2.instances}"
 }
