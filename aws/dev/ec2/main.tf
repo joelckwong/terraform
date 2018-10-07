@@ -34,7 +34,7 @@ module "ec2" {
   web_subnet_ips = "${module.networking.web_subnet_ips}"
 }
 
-module "elb_http" {
+module "elb" {
   source = "../../modules/compute/elb"
   name = "elb-${var.env}"
   subnets         = ["${module.networking.web_subnets}"]
@@ -46,6 +46,12 @@ module "elb_http" {
       instance_protocol = "HTTP"
       lb_port           = "80"
       lb_protocol       = "HTTP"
+    },
+    {
+      instance_port     = "22"
+      instance_protocol = "TCP"
+      lb_port           = "22"
+      lb_protocol       = "TCP"
     },
   ]
   health_check = [
@@ -62,6 +68,6 @@ module "elb_http" {
 module "elb_attach" {
   source = "../../modules/compute/elb_attachment"
   instance_count = "${var.instance_count}"
-  elb = "${module.elb_http.this_elb_id}"
+  elb = "${module.elb.this_elb_id}"
   instance = "${module.ec2.instances}"
 }
