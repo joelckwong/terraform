@@ -1,11 +1,10 @@
-#------------------aws/main.tf-------------------
 terraform {
   backend "s3" {
     encrypt        = true
     bucket         = "my-terraform-dev"
     region         = "us-east-1"
     dynamodb_table = "terraform-dev"
-    key            = "dev/terraform.tfstate"
+    key            = "ec2/terraform.tfstate"
   }
 }
 
@@ -27,6 +26,7 @@ module "ec2" {
   source = "../../modules/compute/ec2"
   instance_count = "${var.instance_count}"
   key_name = "${var.key_name}"
+  env = "${var.env}"
   public_key_path = "${var.public_key_path}"
   instance_type = "${var.server_instance_type}"
   subnets = "${module.networking.web_subnets}"

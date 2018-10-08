@@ -34,6 +34,7 @@ resource "aws_instance" "this" {
   ami = "${data.aws_ami.this.id}"
   tags {
     Name = "web_server-${count.index +1}"
+    Env = "${var.env}"
   }
   key_name = "${aws_key_pair.this.id}"
   vpc_security_group_ids = ["${var.security_group}"]
