@@ -1,5 +1,16 @@
+provider "random" {
+}
+
+resource "random_id" "elb" {
+  keepers = {
+    # Generate a new id each time we switch to a new name
+    name = "${var.name}"
+  }
+
+  byte_length = 2
+}
 resource "aws_elb" "this" {
-  name            = "${var.name}"
+  name            = "${var.name}-${random_id.elb.hex}"
   subnets         = ["${var.subnets}"]
   internal        = "${var.internal}"
   security_groups = ["${var.security_groups}"]
@@ -14,4 +25,7 @@ resource "aws_elb" "this" {
   health_check = ["${var.health_check}"]
 
   tags = "${merge(var.tags, map("Name", format("%s", var.name)))}"
+  lifecycle {
+    create_before_destroy = true
+  }
 }

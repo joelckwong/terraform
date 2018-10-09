@@ -12,14 +12,17 @@ provider "aws" {
   region = "${var.aws_region}"
 }
 
-module "networking" {
-  source = "../../modules/networking"
-  vpc_cidr = "${var.vpc_cidr}"
-  web_cidrs = "${var.web_cidrs}"
-  app_cidrs = "${var.app_cidrs}"
-  data_cidrs = "${var.data_cidrs}"
-  env = "${var.env}"
-  accessip = "${var.accessip}"
+provider "random" {
+}
+
+data "terraform_remote_state" "vpc" {
+ backend     = "s3"
+
+ config {
+   bucket = "my-terraform-dev"
+   key    = "vpc/terraform.tfstate"
+   region = "${var.aws_region}"
+ }
 }
 
 module "ec2" {
@@ -29,34 +32,34 @@ module "ec2" {
   env = "${var.env}"
   public_key_path = "${var.public_key_path}"
   instance_type = "${var.server_instance_type}"
-  subnets = "${module.networking.web_subnets}"
-  security_group = ["${module.networking.web_sg}"]
-  web_subnet_ips = "${module.networking.web_subnet_ips}"
+  subnets = "${data.terraform_remote_state.vpc.web_subnets}"
+  security_group = ["${data.terraform_remote_state.vpc.web_sg}"]
+  web_subnet_ips = "${data.terraform_remote_state.vpc.web_subnet_ips}"
 }
 
 module "elb" {
   source = "../../modules/compute/elb"
   name = "elb-${var.env}"
-  subnets         = ["${module.networking.web_subnets}"]
-  security_groups = ["${module.networking.web_sg}"]
+  subnets         = ["${data.terraform_remote_state.vpc.web_subnets}"]
+  security_groups = ["${data.terraform_remote_state.vpc.web_sg}"]
   internal        = false
   listener = [
     {
-      instance_port     = "80"
+      instance_port     = "${var.http_port}"
       instance_protocol = "HTTP"
-      lb_port           = "80"
+      lb_port           = "${var.http_port}"
       lb_protocol       = "HTTP"
     },
     {
-      instance_port     = "22"
+      instance_port     = "${var.ssh_port}"
       instance_protocol = "TCP"
-      lb_port           = "22"
+      lb_port           = "${var.ssh_port}"
       lb_protocol       = "TCP"
     },
   ]
   health_check = [
     {
-      target              = "HTTP:80/"
+      target              = "HTTP:${var.http_port}/"
       interval            = 30
       healthy_threshold   = 2
       unhealthy_threshold = 2
