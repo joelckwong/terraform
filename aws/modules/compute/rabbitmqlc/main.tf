@@ -16,7 +16,7 @@ data "template_file" "cloud-init" {
     sync_node_count = 3
     region          = "${var.aws_region}"
     secret_cookie   = "${var.rabbitmq_secret_cookie}"
-    admin_password  = "${var.admin_password}"
+    admin_password  = "${var.rabbitmq_admin_password}"
     message_timeout = "${3 * 24 * 60 * 60 * 1000}"    # 3 days
     env             = "${var.env}"
   }

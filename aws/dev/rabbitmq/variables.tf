@@ -1,9 +1,8 @@
 variable "aws_region" {}
 variable "env" {}
-variable "http_port" {}
 variable "key_name" {}
 variable "server_instance_type" {}
+variable "http_port" {}
 variable "ssh_port" {}
 variable "rabbitmq_port" {}
-variable "rabbit_exchanges" {}
-variable "rabbit_users" {}
+variable "rabbitmqconsole_port" {}

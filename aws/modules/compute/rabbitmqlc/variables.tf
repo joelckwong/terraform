@@ -7,4 +7,4 @@ variable "security_groups" {
 }
 variable "aws_region" {}
 variable "rabbitmq_secret_cookie" {}
-variable "admin_password" {}
+variable "rabbitmq_admin_password" {}

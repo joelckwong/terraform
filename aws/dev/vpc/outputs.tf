@@ -1,3 +1,6 @@
+output "vpc_id" {
+    value = "${module.networking.vpc_id}"
+}
 output "app_subnets" {
     value = "${module.networking.app_subnets}"
 }
