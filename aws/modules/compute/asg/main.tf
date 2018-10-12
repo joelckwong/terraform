@@ -3,7 +3,7 @@ resource "aws_autoscaling_group" "this" {
   launch_configuration = "${var.launch_configuration}"
   vpc_zone_identifier       = ["${var.vpc_zone_identifier}"]
   load_balancers       = ["${var.load_balancers}"]
-  min_size = 2
+  min_size = 3
   max_size = 10
   tag {
     key = "Name"
