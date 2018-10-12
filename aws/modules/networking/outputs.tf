@@ -18,6 +18,10 @@ output "app_sg" {
   value = "${aws_security_group.app.id}"
 }
 
+output "app_subnet_ips" {
+  value = "${aws_subnet.app.*.cidr_block}"
+}
+
 output "data_subnets" {
   value = "${aws_subnet.data.*.id}"
 }
@@ -25,3 +29,8 @@ output "data_subnets" {
 output "data_sg" {
   value = "${aws_security_group.data.id}"
 }
+
+output "data_subnet_ips" {
+  value = "${aws_subnet.data.*.cidr_block}"
+}
+

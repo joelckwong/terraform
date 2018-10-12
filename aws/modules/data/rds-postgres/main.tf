@@ -10,14 +10,6 @@ data "aws_vpc" "this" {
   }
 }
 
-data "aws_availability_zones" "available" {
-  state = "available"
-}
-
-#
-# Resource blocks
-#
-
 resource "aws_db_subnet_group" "this" {
     name = "postgres subnet group for ${var.env}"
     description = "Our main group of subnets"
@@ -36,6 +28,7 @@ resource "aws_db_instance" "main" {
   db_subnet_group_name    = "${aws_db_subnet_group.this.name}"
   vpc_security_group_ids  = ["${var.security_group}"]
   backup_retention_period = 7
+  skip_final_snapshot	  = true
 
   tags {
     Name        = "rds-instance-${var.env}-main"

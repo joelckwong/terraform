@@ -43,7 +43,7 @@ module "lc" {
   key_name	 = "${var.key_name}"
   source         = "../../modules/compute/lc"
   instance_type  = "${var.server_instance_type}"
-  security_groups = ["${data.terraform_remote_state.vpc.web_sg}"]
+  security_groups = ["${data.terraform_remote_state.vpc.app_sg}"]
   image_id       = "${data.aws_ami.this.id}"
 }
 
@@ -80,7 +80,7 @@ module "asg" {
   source               = "../../modules/compute/asg"
   name                 = "asg-${var.env}"
   launch_configuration = "${module.lc.name}"
-  vpc_zone_identifier  = ["${data.terraform_remote_state.vpc.web_subnets}"]
+  vpc_zone_identifier  = ["${data.terraform_remote_state.vpc.app_subnets}"]
   env                  = "${var.env}"
   load_balancers       = ["${module.elb.this_elb_name}"]
 }

@@ -18,6 +18,20 @@ resource "aws_internet_gateway" "this" {
   }
 } 
 
+resource "aws_eip" "this" {
+  vpc = true
+
+  tags {
+    Name = "${var.env}_natgw"
+  }
+}
+
+resource "aws_nat_gateway" "this" {
+  allocation_id = "${aws_eip.this.id}"
+  subnet_id = "${aws_subnet.web.0.id}"
+  depends_on = ["aws_internet_gateway.this"]
+}
+
 resource "aws_route_table" "web" {
   vpc_id =  "${aws_vpc.this.id}"
 
@@ -33,6 +47,11 @@ resource "aws_route_table" "web" {
 
 resource "aws_default_route_table" "this" {
   default_route_table_id =  "${aws_vpc.this.default_route_table_id}"
+
+  route {
+    cidr_block = "0.0.0.0/0"
+    nat_gateway_id = "${aws_nat_gateway.this.id}"
+  }
 
   tags {
     Name = "${var.env}_default_rt"
@@ -137,6 +156,15 @@ resource "aws_security_group" "app" {
   ingress {
     from_port = 22
     to_port   = 22
+    protocol  = "tcp"
+    cidr_blocks = ["${var.accessip}"]
+  }
+
+
+  #http
+  ingress {
+    from_port = 80
+    to_port   = 80
     protocol  = "tcp"
     cidr_blocks = ["${var.accessip}"]
   }

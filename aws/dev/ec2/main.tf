@@ -30,11 +30,10 @@ module "ec2" {
   instance_count = "${var.instance_count}"
   key_name = "${var.key_name}"
   env = "${var.env}"
-  public_key_path = "${var.public_key_path}"
   instance_type = "${var.server_instance_type}"
-  subnets = "${data.terraform_remote_state.vpc.web_subnets}"
-  security_group = ["${data.terraform_remote_state.vpc.web_sg}"]
-  web_subnet_ips = "${data.terraform_remote_state.vpc.web_subnet_ips}"
+  subnets = "${data.terraform_remote_state.vpc.app_subnets}"
+  security_group = ["${data.terraform_remote_state.vpc.app_sg}"]
+  app_subnet_ips = "${data.terraform_remote_state.vpc.app_subnet_ips}"
 }
 
 module "elb" {

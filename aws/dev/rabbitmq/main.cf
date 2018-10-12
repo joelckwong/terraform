@@ -1,0 +1,30 @@
+terraform {
+  backend "s3" {
+    encrypt        = true
+    bucket         = "my-terraform-dev"
+    region         = "us-east-1"
+    dynamodb_table = "terraform-dev"
+    key            = "rabbitmq/terraform.tfstate"
+  }
+}
+
+provider "aws" {
+  region = "${var.aws_region}"
+}
+
+provider "random" {
+}
+
+data "terraform_remote_state" "vpc" {
+ backend     = "s3"
+
+ config {
+   bucket = "my-terraform-dev"
+   key    = "vpc/terraform.tfstate"
+   region = "${var.aws_region}"
+ }
+}
+
+module "rabbitmq" {
+  source = "../../modules/compute/rabbitmq"
+

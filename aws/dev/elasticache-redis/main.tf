@@ -4,7 +4,7 @@ terraform {
     bucket         = "my-terraform-dev"
     region         = "us-east-1"
     dynamodb_table = "terraform-dev"
-    key            = "rds-postgres/terraform.tfstate"
+    key            = "redis/terraform.tfstate"
   }
 }
 
@@ -17,8 +17,8 @@ provider "credstash" {
     region = "us-east-1"
 }
 
-data "credstash_secret" "db_master_pass" {
-    name = "db_master_pass"
+data "credstash_secret" "cache_token" {
+    name = "cache_token"
 }
 
 data "terraform_remote_state" "vpc" {
@@ -31,11 +31,12 @@ data "terraform_remote_state" "vpc" {
  }
 }
 
-module "rds_postgres" {
-  source = "../../modules/data/rds-postgres"
-
+module "elasticache-redis" {
+  source = "../../modules/data/elasticache-redis"
   env                 = "${var.env}"
-  rds_master_password = "${data.credstash_secret.db_master_pass.value}"
+  node_type = "cache.t2.micro"
+  auth_token = "${data.credstash_secret.cache_token.value}"
   subnets = ["${data.terraform_remote_state.vpc.data_subnets}"]
   security_group = ["${data.terraform_remote_state.vpc.data_sg}"]
+  node_type = "cache.t2.micro"
 }

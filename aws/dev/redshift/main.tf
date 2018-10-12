@@ -4,7 +4,7 @@ terraform {
     bucket         = "my-terraform-dev"
     region         = "us-east-1"
     dynamodb_table = "terraform-dev"
-    key            = "rds-postgres/terraform.tfstate"
+    key            = "redshift/terraform.tfstate"
   }
 }
 
@@ -17,8 +17,8 @@ provider "credstash" {
     region = "us-east-1"
 }
 
-data "credstash_secret" "db_master_pass" {
-    name = "db_master_pass"
+data "credstash_secret" "redshift_master_pass" {
+    name = "redshift_master_pass"
 }
 
 data "terraform_remote_state" "vpc" {
@@ -31,11 +31,13 @@ data "terraform_remote_state" "vpc" {
  }
 }
 
-module "rds_postgres" {
-  source = "../../modules/data/rds-postgres"
+module "redshift" {
+  source = "../../modules/data/redshift"
 
   env                 = "${var.env}"
-  rds_master_password = "${data.credstash_secret.db_master_pass.value}"
+  redshift_master_password = "${data.credstash_secret.redshift_master_pass.value}"
   subnets = ["${data.terraform_remote_state.vpc.data_subnets}"]
   security_group = ["${data.terraform_remote_state.vpc.data_sg}"]
+  number_of_nodes = "${var.number_of_nodes}"
 }
+
