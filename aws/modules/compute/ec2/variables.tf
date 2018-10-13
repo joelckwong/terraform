@@ -1,5 +1,6 @@
 variable "env" {}
 variable "key_name" {}
+variable "image_id" {}
 
 variable "app_subnet_ips" {
   type = "list"

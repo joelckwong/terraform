@@ -1,5 +1,6 @@
 aws_region = "us-east-1"
 env = "dev"
+app = "rabbitmq"
 rabbitmq_port = 5672
 rabbitmqconsole_port = 15672
 key_name = "Custom"

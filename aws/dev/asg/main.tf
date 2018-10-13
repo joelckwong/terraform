@@ -23,19 +23,23 @@ data "terraform_remote_state" "vpc" {
 }
 
 data "aws_ami" "this" {
+  owners      = ["679593333241"]
   most_recent = true
-
-  filter {
-    name   = "owner-alias"
-    values = ["amazon"]
-  }
 
   filter {
     name   = "name"
-    values = ["amzn-ami-hvm*-x86_64-gp2"]
+    values = ["CentOS Linux 7 x86_64 HVM EBS *"]
   }
 
-  most_recent = true
+  filter {
+    name   = "architecture"
+    values = ["x86_64"]
+  }
+
+  filter {
+    name   = "root-device-type"
+    values = ["ebs"]
+  }
 }
 
 module "lc" {
@@ -82,6 +86,7 @@ module "asg" {
   launch_configuration = "${module.lc.name}"
   vpc_zone_identifier  = ["${data.terraform_remote_state.vpc.app_subnets}"]
   env                  = "${var.env}"
+  app                  = "${var.app}"
   load_balancers       = ["${module.elb.this_elb_name}"]
 }
 

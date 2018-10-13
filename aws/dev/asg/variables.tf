@@ -1,4 +1,5 @@
 variable "aws_region" {}
+variable "app" {}
 variable "env" {}
 variable "http_port" {}
 variable "key_name" {}

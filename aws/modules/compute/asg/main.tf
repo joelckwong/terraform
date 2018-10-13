@@ -7,7 +7,7 @@ resource "aws_autoscaling_group" "this" {
   max_size = 10
   tag {
     key = "Name"
-    value = "asg-${var.env}"
+    value = "${var.app}-asg-${var.env}"
     propagate_at_launch = true
   }
   lifecycle {

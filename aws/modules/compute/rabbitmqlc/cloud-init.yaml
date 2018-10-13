@@ -9,7 +9,7 @@ write_files:
 
         export AWS_DEFAULT_REGION='${region}'
 
-        DNSES=$(aws ec2 describe-instances --filters "Name=tag:Name,Values=rabbit-${env}" "Name=instance-state-name,Values=running" | jq ".Reservations[].Instances[].PrivateDnsName" | xargs)
+        DNSES=$(aws ec2 describe-instances --filters "Name=tag:Name,Values=rabbitmq-*-${env}" "Name=instance-state-name,Values=running" | jq ".Reservations[].Instances[].PrivateDnsName" | xargs)
 
         HOSTNAMES=()
         for dns in $DNSES; do
@@ -65,12 +65,11 @@ runcmd:
   - yum install -y wget epel-release perl
   - yum -y update
   - yum -y install socat jq
-  - wget https://dl.bintray.com/rabbitmq/rpm/erlang/21/el/7/x86_64/erlang-21.0.4-1.el7.centos.x86_64.rpm
-  - rpm --import https://dl.bintray.com/rabbitmq/Keys/rabbitmq-release-signing-key.asc
-  - rpm -Uvh erlang-21.0.4-1.el7.centos.x86_64.rpm
-  - wget https://dl.bintray.com/rabbitmq/all/rabbitmq-server/3.7.7/rabbitmq-server-3.7.7-1.el7.noarch.rpm
-  - rpm --import https://dl.bintray.com/rabbitmq/all/rabbitmq-server/3.7.7/rabbitmq-server-3.7.7-1.el7.noarch.rpm.asc
-  - rpm -Uvh rabbitmq-server-3.7.7-1.el7.noarch.rpm
+  - wget https://github.com/rabbitmq/erlang-rpm/releases/download/v21.1/erlang-21.1-2.el7.centos.x86_64.rpm
+  - rpm -Uvh erlang-21.1-2.el7.centos.x86_64.rpm
+  - wget https://github.com/rabbitmq/rabbitmq-server/releases/download/v3.7.8/rabbitmq-server-3.7.8-1.el7.noarch.rpm
+  - rpm --import https://github.com/rabbitmq/rabbitmq-server/releases/download/v3.7.8/rabbitmq-server-3.7.8-1.el7.noarch.rpm.asc
+  - rpm -Uvh rabbitmq-server-3.7.8-1.el7.noarch.rpm
   - echo ${secret_cookie} > /var/lib/rabbitmq/.erlang.cookie
   - chmod 600 /var/lib/rabbitmq/.erlang.cookie
   - systemctl start rabbitmq-server
@@ -81,7 +80,7 @@ runcmd:
   - bash /root/bin/join_cluster.sh $(bash /root/find_hosts.sh)
   - sleep 10
   - bash /root/configure.sh
-  - rabbitmqctl set_cluster_name vela-${env}
+  - rabbitmqctl set_cluster_name rabbitmq-${env}
   - cp /usr/share/doc/rabbitmq-server-*/rabbitmq.config.example /etc/rabbitmq/rabbitmq.config
   - perl -ni -le 'print; print "   {vm_memory_high_watermark, 0.8}" if /vm_memory_high_watermark, 0.4/' /etc/rabbitmq/rabbitmq.config
   - perl -ni -le 'print; print "   {loopback_users, \[\]}," if /loopback_users, \[\]/' /etc/rabbitmq/rabbitmq.config

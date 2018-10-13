@@ -1,19 +1,3 @@
-data "aws_ami" "this" {
-  most_recent = true
-  
-  filter {
-    name = "owner-alias"
-    values = ["amazon"]
-  }
-
-  filter {
-    name = "name"
-    values = ["amzn-ami-hvm*-x86_64-gp2"]
-  }
-  
-  most_recent = true
-}
-
 data "template_file" "this" {
   count = 4
   template = "${file("${path.module}/userdata.tpl")}"
@@ -26,7 +10,7 @@ data "template_file" "this" {
 resource "aws_instance" "this" {
   count = "${var.instance_count}"
   instance_type = "${var.instance_type}"
-  ami = "${data.aws_ami.this.id}"
+  ami = "${var.image_id}"
   tags {
     Name = "web-server-${var.env}-${count.index +1}"
     Env = "${var.env}"

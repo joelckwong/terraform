@@ -23,19 +23,23 @@ data "terraform_remote_state" "vpc" {
 }
 
 data "aws_ami" "this" {
+  owners      = ["679593333241"]
   most_recent = true
-
-  filter {
-    name   = "owner-alias"
-    values = ["amazon"]
-  }
 
   filter {
     name   = "name"
-    values = ["amzn-ami-hvm*-x86_64-gp2"]
+    values = ["CentOS Linux 7 x86_64 HVM EBS *"]
   }
 
-  most_recent = true
+  filter {
+    name   = "architecture"
+    values = ["x86_64"]
+  }
+
+  filter {
+    name   = "root-device-type"
+    values = ["ebs"]
+  }
 }
 
 provider "credstash" {
@@ -67,6 +71,13 @@ resource "aws_security_group" "lc" {
   name_prefix   = "rabbitmq-lc-sg-${var.env}-"
   vpc_id	= "${data.terraform_remote_state.vpc.vpc_id}"
  
+  ingress {
+    protocol  = -1
+    from_port = 0
+    to_port   = 0
+    self      = true
+  }
+
   ingress {
     from_port   = "${var.rabbitmq_port}"
     to_port     = "${var.rabbitmq_port}"
@@ -119,6 +130,7 @@ resource "aws_security_group" "elb" {
 module "asg" {
   source               = "../../modules/compute/asg"
   name                 = "rabbitmq-asg-${var.env}"
+  app                  = "${var.app}"
   launch_configuration = "${module.lc.name}"
   vpc_zone_identifier  = ["${data.terraform_remote_state.vpc.app_subnets}"]
   env                  = "${var.env}"
