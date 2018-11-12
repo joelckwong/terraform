@@ -6,7 +6,7 @@ variable "app_subnet_ips" {
   type = "list"
 }
 
-variable "instance_count" {}
+variable "count" {}
 variable "instance_type" {}
 variable "security_group" {
   type = "list"

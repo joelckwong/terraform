@@ -47,7 +47,7 @@ data "terraform_remote_state" "vpc" {
 
 module "ec2" {
   source = "../../modules/compute/ec2"
-  instance_count = "${var.instance_count}"
+  count = "${var.count}"
   key_name = "${var.key_name}"
   env = "${var.env}"
   image_id       = "${data.aws_ami.this.id}"
@@ -90,7 +90,7 @@ module "elb" {
 
 module "elb_attach" {
   source = "../../modules/compute/elb_attachment"
-  instance_count = "${var.instance_count}"
+  count = "${var.count}"
   elb = "${module.elb.this_elb_id}"
   instance = "${module.ec2.instances}"
 }

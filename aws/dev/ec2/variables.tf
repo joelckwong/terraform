@@ -6,6 +6,6 @@ variable "ssh_port" {}
 variable "env" {}
 variable "key_name" {}
 variable "server_instance_type" {}
-variable "instance_count" {
+variable "count" {
   default = 1
 }

@@ -8,7 +8,7 @@ data "template_file" "this" {
 }
 
 resource "aws_instance" "this" {
-  count = "${var.instance_count}"
+  count = "${var.count}"
   instance_type = "${var.instance_type}"
   ami = "${var.image_id}"
   tags {
