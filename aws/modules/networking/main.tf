@@ -6,6 +6,7 @@ resource "aws_vpc" "this" {
   enable_dns_support = true
 
   tags { 
+    Env = "${var.env}"
     Name = "vpc-${var.env}"
   }
 }
@@ -14,7 +15,8 @@ resource "aws_internet_gateway" "this" {
   vpc_id =  "${aws_vpc.this.id}"
 
   tags {
-    Name = "${var.env}_igw"
+    Env = "${var.env}"
+    Name = "igw-${var.env}"
   }
 } 
 
@@ -22,7 +24,8 @@ resource "aws_eip" "this" {
   vpc = true
 
   tags {
-    Name = "${var.env}_natgw"
+    Env = "${var.env}"
+    Name = "natgw-ip-${var.env}"
   }
 }
 
@@ -41,7 +44,8 @@ resource "aws_route_table" "web" {
   }
 
   tags {
-    Name = "${var.env}_web_rt"
+    Env = "${var.env}"
+    Name = "web-rt-${var.env}"
   }
 }
 
@@ -54,7 +58,8 @@ resource "aws_default_route_table" "this" {
   }
 
   tags {
-    Name = "${var.env}_default_rt"
+    Env = "${var.env}"
+    Name = "default-rt-${var.env}"
   }
 }
 
@@ -66,7 +71,8 @@ resource "aws_subnet" "web" {
   availability_zone = "${data.aws_availability_zones.available.names[count.index]}"
 
   tags {
-    Name = "web_subnet_${count.index + 1}"
+    Env = "${var.env}"
+    Name = "web-subnet-${count.index + 1}"
   }
 }
 
@@ -77,7 +83,8 @@ resource "aws_subnet" "app" {
   availability_zone = "${data.aws_availability_zones.available.names[count.index]}"
 
   tags {
-    Name = "app_subnet_${count.index + 1}"
+    Env = "${var.env}"
+    Name = "app-subnet-${count.index + 1}"
   }
 }
 
@@ -88,7 +95,8 @@ resource "aws_subnet" "data" {
   availability_zone = "${data.aws_availability_zones.available.names[count.index]}"
 
   tags {
-    Name = "data_subnet_${count.index + 1}"
+    Env = "${var.env}"
+    Name = "data-subnet-${count.index + 1}"
   }
 }
 
@@ -111,7 +119,7 @@ resource "aws_route_table_association" "data" {
 }
 
 resource "aws_security_group" "web" {
-  name = "web_sg"
+  name = "web-sg"
   description = "Used for access to the public web instances"
   vpc_id = "${aws_vpc.this.id}"
 
@@ -144,6 +152,11 @@ resource "aws_security_group" "web" {
     to_port   = 0
     protocol  = "-1"
     cidr_blocks = ["0.0.0.0/0"] 
+  }
+
+ tags {
+    Env = "${var.env}"
+    Name = "web-sg-${var.env}"
   }
 }
 
@@ -211,5 +224,10 @@ resource "aws_security_group" "data" {
     to_port   = 0
     protocol  = "-1"
     cidr_blocks = ["0.0.0.0/0"]
+  }
+  
+  tags {
+    Env = "${var.env}"
+    Name = "app-sg-${var.env}"
   }
 }
