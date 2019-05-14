@@ -41,4 +41,3 @@ output "data_sg" {
 output "data_subnet_ips" {
   value = "${aws_subnet.data.*.cidr_block}"
 }
-

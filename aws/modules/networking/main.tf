@@ -72,7 +72,7 @@ resource "aws_subnet" "web" {
 
   tags {
     Env = "${var.env}"
-    Name = "web-subnet-${count.index + 1}"
+    Name = "web-subnet-${count.index + 1}-${var.env}"
   }
 }
 
@@ -84,7 +84,7 @@ resource "aws_subnet" "app" {
 
   tags {
     Env = "${var.env}"
-    Name = "app-subnet-${count.index + 1}"
+    Name = "app-subnet-${count.index + 1}-${var.env}"
   }
 }
 
@@ -96,7 +96,7 @@ resource "aws_subnet" "data" {
 
   tags {
     Env = "${var.env}"
-    Name = "data-subnet-${count.index + 1}"
+    Name = "data-subnet-${count.index + 1}-${var.env}"
   }
 }
 

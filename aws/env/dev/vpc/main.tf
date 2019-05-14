@@ -37,7 +37,7 @@ provider "aws" {
 }
 
 module "networking" {
-  source = "../../modules/networking"
+  source = "../../../modules/networking"
   vpc_cidr = "${local.vpc_cidr}"
   web_cidrs = "${local.web_cidrs}"
   app_cidrs = "${local.app_cidrs}"
