@@ -188,6 +188,12 @@ resource "aws_security_group" "app" {
     protocol  = "-1"
     cidr_blocks = ["0.0.0.0/0"]
   }
+ 
+  tags {
+    Env = "${var.env}"
+    Name = "app-sg-${var.env}"
+  }
+
 }
 
 resource "aws_security_group" "data" {
@@ -228,6 +234,6 @@ resource "aws_security_group" "data" {
   
   tags {
     Env = "${var.env}"
-    Name = "app-sg-${var.env}"
+    Name = "data-sg-${var.env}"
   }
 }
