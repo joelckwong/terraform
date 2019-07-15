@@ -2,8 +2,8 @@ data "template_file" "this" {
   count = 1
   template = "${file("${path.module}/userdata.tpl")}"
 
-  vars {
-    app_subnets = "${element(var.app_subnet_ips, count.index)}"
+ vars {
+    count = "${count.index}"
   }
 }
 

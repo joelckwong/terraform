@@ -2,10 +2,6 @@ variable "env" {}
 variable "key_name" {}
 variable "image_id" {}
 
-variable "app_subnet_ips" {
-  type = "list"
-}
-
 variable "count" {}
 variable "instance_type" {}
 variable "security_groups" {
@@ -14,4 +10,4 @@ variable "security_groups" {
 variable "subnets" {
   type = "list"
 }
- variable "vpc_id" {}
+variable "vpc_id" {}

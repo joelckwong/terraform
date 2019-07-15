@@ -8,8 +8,20 @@ terraform {
   }
 }
 
+locals {
+aws_region = "us-east-1"
+count = 1
+env = "dev"
+key_name = "Custom"
+server_instance_type = "t3.micro"
+instance_count = 4
+http_port = 80
+jenkins_port = 8080
+ssh_port = 22
+}
+
 provider "aws" {
-  region = "${var.aws_region}"
+  region = "${local.aws_region}"
 }
 
 provider "random" {
@@ -35,52 +47,73 @@ data "aws_ami" "this" {
   }
 }
 
-data "terraform_remote_state" "vpc" {
- backend     = "s3"
-
- config {
-   bucket = "my-terraform-dev"
-   key    = "vpc/terraform.tfstate"
-   region = "${var.aws_region}"
- }
+data "aws_vpc" "this" {
+  filter {
+    name = "tag:Env"
+    values = ["${local.env}"]
+  }
 }
 
+data "aws_subnet_ids" "app" {
+  vpc_id = "${data.aws_vpc.this.id}"
+  tags = {
+    Name = "app-subnet*-${local.env}"
+  }
+}
+
+data "aws_subnet_ids" "web" {
+  vpc_id = "${data.aws_vpc.this.id}"
+  tags = {
+    Name = "web-subnet*-${local.env}"
+  }
+}
+
+data "aws_security_groups" "app" {
+  tags = {
+    Name = "app-sg-${local.env}"
+  }
+}
+
+data "aws_security_groups" "web" {
+  tags = {
+    Name = "web-sg-${local.env}"
+  }
+}
 module "jenkins" {
-  source = "../../modules/compute/jenkins"
-  count = "${var.count}"
-  key_name = "${var.key_name}"
-  env = "${var.env}"
+  source = "../../../modules/compute/jenkins"
+  count = "${local.count}"
+  key_name = "${local.key_name}"
+  env = "${local.env}"
   image_id       = "${data.aws_ami.this.id}"
-  instance_type = "${var.server_instance_type}"
-  subnets = "${data.terraform_remote_state.vpc.app_subnets}"
-  security_groups = ["${data.terraform_remote_state.vpc.app_sg}"]
-  app_subnet_ips = "${data.terraform_remote_state.vpc.app_subnet_ips}"
-  vpc_id = "${data.terraform_remote_state.vpc.vpc_id}"
+  instance_type = "${local.server_instance_type}"
+  subnets = "${data.aws_subnet_ids.app.ids}"
+  security_groups = ["${data.aws_security_groups.app.ids}"]
+  vpc_id = "${data.aws_vpc.this.id}"
 }
 
 module "elb" {
-  source = "../../modules/compute/elb"
-  name = "elb-${var.env}"
-  subnets         = ["${data.terraform_remote_state.vpc.web_subnets}"]
-  security_groups = ["${data.terraform_remote_state.vpc.web_sg}"]
+  source = "../../../modules/compute/elb"
+  name = "elb-${local.env}"
+  subnets         = ["${data.aws_subnet_ids.web.ids}"]
+  security_groups = ["${data.aws_security_groups.web.ids}"]
   internal        = false
   listener = [
     {
-      instance_port     = "${var.jenkins_port}"
+      instance_port     = "${local.jenkins_port}"
       instance_protocol = "TCP"
-      lb_port           = "${var.http_port}"
+      lb_port           = "${local.http_port}"
       lb_protocol       = "TCP"
     },
     {
-      instance_port     = "${var.ssh_port}"
+      instance_port     = "${local.ssh_port}"
       instance_protocol = "TCP"
-      lb_port           = "${var.ssh_port}"
+      lb_port           = "${local.ssh_port}"
       lb_protocol       = "TCP"
     },
   ]
   health_check = [
     {
-      target              = "TCP:${var.jenkins_port}"
+      target              = "TCP:${local.jenkins_port}"
       interval            = 30
       healthy_threshold   = 2
       unhealthy_threshold = 2
@@ -90,8 +123,8 @@ module "elb" {
 }
 
 module "elb_attach" {
-  source = "../../modules/compute/elb_attachment"
-  count = "${var.count}"
+  source = "../../../modules/compute/elb_attachment"
+  count = "${local.count}"
   elb = "${module.elb.this_elb_id}"
   instance = "${module.jenkins.instances}"
 }

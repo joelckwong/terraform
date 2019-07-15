@@ -80,7 +80,7 @@ data "aws_security_groups" "web" {
 }
 
 module "ec2" {
-  source = "../../modules/compute/ec2"
+  source = "../../../modules/compute/ec2"
   count = "${local.count}"
   key_name = "${local.key_name}"
   env = "${local.env}"
@@ -91,7 +91,7 @@ module "ec2" {
 }
 
 module "elb" {
-  source = "../../modules/compute/elb"
+  source = "../../../modules/compute/elb"
   name = "elb-${local.env}"
   subnets         = ["${data.aws_subnet_ids.web.ids}"]
   security_groups = ["${data.aws_security_groups.web.ids}"]
@@ -122,7 +122,7 @@ module "elb" {
 }
 
 module "elb_attach" {
-  source = "../../modules/compute/elb_attachment"
+  source = "../../../modules/compute/elb_attachment"
   count = "${local.count}"
   elb = "${module.elb.this_elb_id}"
   instance = "${module.ec2.instances}"
