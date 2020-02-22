@@ -37,8 +37,8 @@ provider "aws" {
   region = local.aws_region
 }
 
-module "networking" {
-  source     = "../../../modules/networking"
+module "vpc" {
+  source     = "../../modules/vpc"
   vpc_cidr   = local.vpc_cidr
   web_cidrs  = local.web_cidrs
   app_cidrs  = local.app_cidrs

@@ -1,9 +1,9 @@
 data "template_file" "this" {
-  count = 1
+  num = 1
   template = "${file("${path.module}/userdata.tpl")}"
 
  vars {
-    count = "${count.index}"
+    num = "${count.index}"
   }
 }
 
@@ -21,7 +21,7 @@ resource "aws_security_group" "this" {
 }
 
 resource "aws_instance" "this" {
-  count = "${var.count}"
+  count = "${var.num}"
   instance_type = "${var.instance_type}"
   ami = "${var.image_id}"
   tags {
@@ -30,6 +30,6 @@ resource "aws_instance" "this" {
   }
   key_name = "${var.key_name}"
   vpc_security_group_ids = ["${var.security_groups}", "${aws_security_group.this.id}"]
-  subnet_id = "${element(var.subnets, count.index)}"
+  subnet_id = "${element(var.subnet_ids, count.index)}"
   user_data = "${data.template_file.this.*.rendered[count.index]}"
 }

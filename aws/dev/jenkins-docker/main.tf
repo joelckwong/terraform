@@ -4,13 +4,13 @@ terraform {
     bucket         = "my-terraform-dev"
     region         = "us-east-1"
     dynamodb_table = "terraform-dev"
-    key            = "jenkins/terraform.tfstate"
+    key            = "jenkins-docker/terraform.tfstate"
   }
 }
 
 locals {
 aws_region = "us-east-1"
-count = 1
+num = 1
 env = "dev"
 key_name = "Custom"
 server_instance_type = "t3.micro"
@@ -21,7 +21,7 @@ ssh_port = 22
 }
 
 provider "aws" {
-  region = "${local.aws_region}"
+  region = local.aws_region
 }
 
 provider "random" {
@@ -54,17 +54,23 @@ data "aws_vpc" "this" {
   }
 }
 
+data "aws_availability_zones" "this" {
+  state = "available"
+}
+
 data "aws_subnet_ids" "app" {
   vpc_id = "${data.aws_vpc.this.id}"
-  tags = {
-    Name = "app-subnet*-${local.env}"
+  filter {
+    name   = "tag:Name"
+    values = ["app-subnet*-${local.env}"]
   }
 }
 
 data "aws_subnet_ids" "web" {
   vpc_id = "${data.aws_vpc.this.id}"
-  tags = {
-    Name = "web-subnet*-${local.env}"
+  filter {
+    name   = "tag:Name"
+    values = ["web-subnet*-${local.env}"]
   }
 }
 
@@ -79,52 +85,32 @@ data "aws_security_groups" "web" {
     Name = "web-sg-${local.env}"
   }
 }
-module "jenkins" {
-  source = "../../../modules/compute/jenkins"
-  count = "${local.count}"
+module "jenkins-docker" {
+  source = "../../modules/compute/jenkins-docker"
+  num = "${local.num}"
   key_name = "${local.key_name}"
   env = "${local.env}"
   image_id       = "${data.aws_ami.this.id}"
   instance_type = "${local.server_instance_type}"
-  subnets = "${data.aws_subnet_ids.app.ids}"
-  security_groups = ["${data.aws_security_groups.app.ids}"]
+  subnet_ids = ["data.aws_subnet_ids.app.ids"]
+  security_groups = ["data.aws_security_groups.app.ids"]
   vpc_id = "${data.aws_vpc.this.id}"
 }
 
 module "elb" {
-  source = "../../../modules/compute/elb"
+  source = "../../modules/compute/elb"
+  azs = data.aws_availability_zones.this.zone_ids
+  env = "${local.env}"
+  http_port = local.http_port
+  internal = false
+  jenkins_port = local.jenkins_port
   name = "elb-${local.env}"
-  subnets         = ["${data.aws_subnet_ids.web.ids}"]
-  security_groups = ["${data.aws_security_groups.web.ids}"]
-  internal        = false
-  listener = [
-    {
-      instance_port     = "${local.jenkins_port}"
-      instance_protocol = "TCP"
-      lb_port           = "${local.http_port}"
-      lb_protocol       = "TCP"
-    },
-    {
-      instance_port     = "${local.ssh_port}"
-      instance_protocol = "TCP"
-      lb_port           = "${local.ssh_port}"
-      lb_protocol       = "TCP"
-    },
-  ]
-  health_check = [
-    {
-      target              = "TCP:${local.jenkins_port}"
-      interval            = 30
-      healthy_threshold   = 2
-      unhealthy_threshold = 2
-      timeout             = 5
-    },
-  ]
+  ssh_port = local.ssh_port
 }
 
 module "elb_attach" {
-  source = "../../../modules/compute/elb_attachment"
-  count = "${local.count}"
+  source = "../../modules/compute/elb_attachment"
+  num = "${local.num}"
   elb = "${module.elb.this_elb_id}"
-  instance = "${module.jenkins.instances}"
+  instance = "${module.jenkins-docker.instances}"
 }

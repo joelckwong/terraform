@@ -2,12 +2,12 @@ variable "env" {}
 variable "key_name" {}
 variable "image_id" {}
 
-variable "count" {}
+variable "num" {}
 variable "instance_type" {}
 variable "security_groups" {
   type = "list"
 }
-variable "subnets" {
+variable "subnet_ids" {
   type = "list"
 }
 variable "vpc_id" {}
