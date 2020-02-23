@@ -4,21 +4,23 @@ terraform {
     bucket         = "my-terraform-dev"
     region         = "us-east-1"
     dynamodb_table = "terraform-dev"
-    key            = "bastion/terraform.tfstate"
+    key            = "jenkins/terraform.tfstate"
   }
 }
 
 locals {
 aws_region = "us-east-1"
 env = "dev"
-hostname = "bastion"
+hostname = "jenkins"
 key_name = "Custom"
 server_instance_type = "t3.micro"
-tier = "web"
 }
 
 provider "aws" {
   region = local.aws_region
+}
+
+provider "random" {
 }
 
 data "aws_ami" "this" {
@@ -30,12 +32,11 @@ data "aws_ami" "this" {
   }
 }
 
-module "ec2-bastion" {
-  source = "../../modules/ec2-bastion"
+module "ec2-jenkins" {
+  source = "../../modules/ec2-jenkins"
   env = local.env
   hostname = local.hostname
   image_id = data.aws_ami.this.id
   instance_type = local.server_instance_type
   ssh_key_name = local.key_name
-  tier = local.tier
 }
