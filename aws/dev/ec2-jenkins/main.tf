@@ -13,7 +13,7 @@ aws_region = "us-east-1"
 env = "dev"
 hostname = "jenkins"
 key_name = "Custom"
-server_instance_type = "t3.medium"
+server_instance_type = "t3.large"
 tier = "web"
 }
 

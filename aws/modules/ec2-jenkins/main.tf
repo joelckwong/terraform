@@ -61,3 +61,8 @@ resource "aws_instance" "this" {
   subnet_id = data.aws_subnet.this.id
   user_data = data.template_file.this.rendered
 }
+
+resource "aws_eip" "this" {
+  instance = aws_instance.this.id
+  vpc      = true
+}
