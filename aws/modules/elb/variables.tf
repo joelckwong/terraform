@@ -1,20 +1,14 @@
-variable "azs" {
-}
-
 variable "env" {
 }
-
-variable "http_port" {
-}
-
-variable "internal" {
-}
-
 variable "jenkins_port" {
 }
-
-variable "name" {
+variable "internal" {
 }
-
-variable "ssh_port" {
+variable "lb_name" {
+}
+variable "nexus_port" {
+}
+variable "sonarqube_port" {
+}
+variable "tier" {
 }

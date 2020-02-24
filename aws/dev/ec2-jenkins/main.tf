@@ -12,9 +12,14 @@ locals {
 aws_region = "us-east-1"
 env = "dev"
 hostname = "jenkins"
+internal = false
+jenkins_port = "8080"
 key_name = "Custom"
+lb_name = "dso"
+nexus_port = "8081"
 server_instance_type = "t3.large"
-tier = "web"
+sonarqube_port = "9000"
+tier = "app"
 }
 
 provider "aws" {
@@ -38,4 +43,21 @@ module "ec2-jenkins" {
   instance_type = local.server_instance_type
   ssh_key_name = local.key_name
   tier = local.tier
+}
+
+module "elb" {
+  source = "../../modules/elb"
+  env = local.env
+  internal = local.internal
+  jenkins_port = local.jenkins_port
+  lb_name = local.lb_name
+  nexus_port = local.nexus_port
+  sonarqube_port = local.sonarqube_port
+  tier = local.tier
+}
+
+module "elb-attachment" {
+  source = "../../modules/elb-attachment"
+  elb = module.elb.elb_id
+  instance = module.ec2-jenkins.jenkins_instance_id
 }
