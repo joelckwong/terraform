@@ -5,3 +5,7 @@ output "elb_dns_name" {
 output "elb_id" {
   value       = aws_elb.this.id
 }
+
+output "elb_security_group" {
+  value = aws_security_group.this.id
+}

@@ -1,8 +1,8 @@
 variable "env" {
 }
-variable "jenkins_port" {
-}
 variable "internal" {
+}
+variable "jenkins_port" {
 }
 variable "lb_name" {
 }

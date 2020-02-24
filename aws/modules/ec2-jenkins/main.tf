@@ -57,12 +57,7 @@ resource "aws_instance" "this" {
     Env = var.env
   }
   key_name = var.ssh_key_name
-  vpc_security_group_ids = [aws_security_group.this.id, data.aws_security_group.bastion.id]
+  vpc_security_group_ids = [aws_security_group.this.id, data.aws_security_group.bastion.id, var.elb_security_group]
   subnet_id = data.aws_subnet.this.id
   user_data = data.template_file.this.rendered
-}
-
-resource "aws_eip" "this" {
-  instance = aws_instance.this.id
-  vpc      = true
 }

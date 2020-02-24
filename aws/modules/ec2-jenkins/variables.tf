@@ -1,3 +1,4 @@
+variable "elb_security_group" {}
 variable "env" {}
 variable "hostname" {}
 variable "image_id" {}
