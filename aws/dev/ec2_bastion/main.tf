@@ -30,8 +30,8 @@ data "aws_ami" "this" {
   }
 }
 
-module "ec2-bastion" {
-  source = "../../modules/ec2-bastion"
+module "ec2_bastion" {
+  source = "../../modules/ec2_bastion"
   env = local.env
   hostname = local.hostname
   image_id = data.aws_ami.this.id
