@@ -29,13 +29,13 @@ data "template_file" "this" {
 
 resource "aws_instance" "this" {
   instance_type = var.instance_type
-  ami = var.image_id
+  ami           = var.image_id
   tags = {
     Name = "${var.hostname}-${var.env}"
-    Env = var.env
+    Env  = var.env
   }
-  key_name = var.ssh_key_name
+  key_name               = var.ssh_key_name
   vpc_security_group_ids = [data.aws_security_group.bastion.id, data.aws_security_group.cicd-lb.id]
-  subnet_id = data.aws_subnet.this.id
-  user_data = data.template_file.this.rendered
+  subnet_id              = data.aws_subnet.this.id
+  user_data              = data.template_file.this.rendered
 }

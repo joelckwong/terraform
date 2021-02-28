@@ -13,5 +13,5 @@ variable "env" {}
 variable "vpc_cidr" {}
 
 variable "web_cidrs" {
-  type = list  
+  type = list
 }

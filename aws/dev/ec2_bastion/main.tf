@@ -9,12 +9,12 @@ terraform {
 }
 
 locals {
-aws_region = "us-east-1"
-env = "dev"
-hostname = "bastion"
-key_name = "Custom"
-server_instance_type = "t3.micro"
-tier = "web"
+  aws_region           = "us-east-1"
+  env                  = "dev"
+  hostname             = "bastion"
+  key_name             = "Custom"
+  server_instance_type = "t3.micro"
+  tier                 = "web"
 }
 
 provider "aws" {
@@ -31,11 +31,11 @@ data "aws_ami" "this" {
 }
 
 module "ec2_bastion" {
-  source = "../../modules/ec2_bastion"
-  env = local.env
-  hostname = local.hostname
-  image_id = data.aws_ami.this.id
+  source        = "../../modules/ec2_bastion"
+  env           = local.env
+  hostname      = local.hostname
+  image_id      = data.aws_ami.this.id
   instance_type = local.server_instance_type
-  ssh_key_name = local.key_name
-  tier = local.tier
+  ssh_key_name  = local.key_name
+  tier          = local.tier
 }
